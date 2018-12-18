@@ -1,0 +1,43 @@
+{
+  "variables": {
+    "aws_region": "us-east-1",
+    "aws_instance_type": "t2.micro",
+    "efx_username": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "region": "{{user `aws_region`}}",
+    "source_ami_filter": {
+      "filters": {
+        "owner-alias": "aws-marketplace",
+        "product-code": "aw0evgkw8e5c1q413zgy5pjce",
+        "virtualization-type": "hvm"
+        },
+      "owners": ["aws-marketplace"],
+      "most_recent": true
+    },
+    "instance_type": "{{user `aws_instance_type`}}",
+    "ssh_username": "centos",
+    "ami_name": "efx-dev-environment-ami {{timestamp}}",
+    "encrypt_boot": true,
+    "tags": {
+                "Name": "CentOS 6",
+                "application": "pda",
+                "businessunit": "usis",
+                "provisionedby": "{{user `efx_username`}}"
+            }
+  }],
+  "provisioners": [
+    {
+      "type":        "file",
+      "source":      "userdata-script.sh",
+      "destination": "/tmp/userdata-script.sh"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "chmod u+x /tmp/userdata-script.sh",
+        "/tmp/userdata-script.sh {{user `efx_username`}}"]
+    }
+  ]
+}
